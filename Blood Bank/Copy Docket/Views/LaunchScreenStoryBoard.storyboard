@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Ndq-c9-sdU">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Launch Screen View Controller-->
+        <scene sceneID="q2e-3U-H95">
+            <objects>
+                <viewController id="Ndq-c9-sdU" customClass="LaunchScreenViewController" customModule="Copy_Docket" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="HY8-d9-25Q">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2Ia-dx-QyF">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="app_logo" translatesAutoresizingMaskIntoConstraints="NO" id="t8K-92-ta4">
+                                        <rect key="frame" x="67" y="338" width="240" height="128"/>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Blood Bank" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UPe-pA-KSn">
+                                        <rect key="frame" x="103" y="281" width="170" height="46"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="UPe-pA-KSn" secondAttribute="height" multiplier="1:1" id="dvB-Gp-OGO"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="DamascusBold" family="Damascus" pointSize="40"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" red="0.71764705880000002" green="0.16459718640000001" blue="0.1517661471" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstItem="t8K-92-ta4" firstAttribute="centerY" secondItem="2Ia-dx-QyF" secondAttribute="centerY" multiplier="1.2" id="1P1-rh-XqL"/>
+                                    <constraint firstItem="t8K-92-ta4" firstAttribute="width" secondItem="2Ia-dx-QyF" secondAttribute="width" multiplier="0.6" id="222-0a-4KJ"/>
+                                    <constraint firstItem="UPe-pA-KSn" firstAttribute="centerY" secondItem="2Ia-dx-QyF" secondAttribute="centerY" multiplier="0.9" id="MCo-Ec-Aac"/>
+                                    <constraint firstItem="t8K-92-ta4" firstAttribute="height" secondItem="2Ia-dx-QyF" secondAttribute="height" multiplier="0.18" id="eaV-ft-gqu"/>
+                                    <constraint firstItem="t8K-92-ta4" firstAttribute="centerX" secondItem="2Ia-dx-QyF" secondAttribute="centerX" multiplier="0.95" id="p4A-8p-8aD"/>
+                                    <constraint firstItem="UPe-pA-KSn" firstAttribute="centerX" secondItem="2Ia-dx-QyF" secondAttribute="centerX" id="tfB-YH-Nk0"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="Nx2-5w-76M" firstAttribute="trailing" secondItem="2Ia-dx-QyF" secondAttribute="trailing" id="79v-Ru-NAK"/>
+                            <constraint firstItem="2Ia-dx-QyF" firstAttribute="leading" secondItem="Nx2-5w-76M" secondAttribute="leading" id="9yT-I6-hvw"/>
+                            <constraint firstAttribute="bottom" secondItem="2Ia-dx-QyF" secondAttribute="bottom" id="fmI-V8-1tg"/>
+                            <constraint firstItem="2Ia-dx-QyF" firstAttribute="top" secondItem="HY8-d9-25Q" secondAttribute="top" id="pCP-0F-ghH"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="Nx2-5w-76M"/>
+                    </view>
+                    <connections>
+                        <outlet property="imageBlood" destination="t8K-92-ta4" id="1c2-V1-qoS"/>
+                        <outlet property="textLabel" destination="UPe-pA-KSn" id="2gu-mY-E1J"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="C2i-JU-A5t" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-335.19999999999999" y="-107.49625187406298"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="app_logo" width="425" height="282"/>
+    </resources>
+</document>
