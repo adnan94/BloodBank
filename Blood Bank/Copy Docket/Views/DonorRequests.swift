@@ -12,7 +12,10 @@ class DonorRequests: UITableViewCell {
 
     var responder:HomeScreenResponder!
     var position:Int!
+    @IBOutlet weak var group: UILabel!
     
+    @IBOutlet weak var userName: UILabel!
+    @IBOutlet weak var picture: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

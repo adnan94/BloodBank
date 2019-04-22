@@ -31,7 +31,7 @@ class SignUpViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        self.contactText.delegate = self
+        self.contactText.delegate = self
         self.title = "Register"
         hud = JGProgressHUD(style: .dark)
         hud.textLabel.text = "Please wait..."
@@ -45,19 +45,6 @@ class SignUpViewController: UIViewController {
     }
     
     
-    
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//
-//        if textField == self.contactText{
-//            let  maxLength = 11
-//            let currentString: NSString = textField.text! as NSString
-//            let newString: NSString =
-//                currentString.replacingCharacters(in: range, with: string) as NSString
-//            return newString.length <= maxLength
-//
-//        }
-//        return false
-//    }
     @IBAction func register(_ sender: Any) {
         if valid(){
             self.hud.show(in: view)
@@ -76,7 +63,22 @@ class SignUpViewController: UIViewController {
    
 
 }
-extension SignUpViewController{
+extension SignUpViewController :  UITextFieldDelegate{
+    
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        if textField == self.contactText{
+            let  maxLength = 11
+            let currentString: NSString = textField.text! as NSString
+            let newString: NSString =
+                currentString.replacingCharacters(in: range, with: string) as NSString
+            return newString.length <= maxLength
+            
+        }
+        return false
+    }
+    
     func doRegisterProcess(){
         Auth.auth().createUser(withEmail: emailText.text!, password: passwordText.text!) { (authResult, error) in
             if error == nil {
@@ -97,17 +99,20 @@ extension SignUpViewController{
         user["type"] = 1
         user["picUrl"] = "N/A"
         user["emailVerified"] = 0
-        user["count"] = 0
         user["password"] = passwordText.text!
         user["active"] = 1
         user["date"] = ServerValue.timestamp()
         user["id"] = push
         user["deviceID"] = UIDevice.current.identifierForVendor!.uuidString
-        user["paymentType"] = 0
-        user["planStartDate"] = 0
-        user["planExpiryDate"] = 0
-        user["totalLinks"] = 0
-        user["used"] = 0
+      
+        user["dateOfBirth"] = CLong(0)
+        user["lastDonated"] = CLong(0)
+        user["bloodGroup"] = "N/A"
+        user["gender"] = "N/A"
+        user["profileCompleted"] = false
+        
+        
+        
         ref.child("Users").child(push).setValue(user, withCompletionBlock: { (error, snapshot) in
             if error != nil {
                 print("\(error!.localizedDescription)")

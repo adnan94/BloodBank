@@ -7,32 +7,39 @@
 //
 
 import UIKit
+import Firebase
+import CodableFirebase
+import JGProgressHUD
+import Kingfisher
 
 class ChatViewController: UIViewController {
     
     var itemHeight:CGFloat = 30
-    var list:Array<String> = Array<String>()
+    var list:Array<SingleMessage> = Array<SingleMessage>()
 
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var messageField: UITextField!
     @IBOutlet weak var mainTableView: UITableView!
     @IBOutlet weak var picture: UIImageView!
     @IBOutlet weak var userName: UILabel!
+    var opponent:User!
+    var contact:Bool!
+    var hud:JGProgressHUD!
+    var shared:AppDelegate = UIApplication.shared.delegate as! AppDelegate
+    var conversationID:String!
+    var removeLinkHandler: DatabaseHandle!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.tabBarController?.tabBar.isHidden = true
-        tableViewWork()
-        getDevice()
-        // Do any additional setup after loading the view.
+       inits()
     }
     
     
     
     override func viewWillDisappear(_ animated: Bool) {
         self.tabBarController?.tabBar.isHidden = false
-    
+        self.tabBarController?.tabBar.isTranslucent = false
     }
 
     
@@ -40,20 +47,177 @@ class ChatViewController: UIViewController {
   
 
     @IBAction func sendButton(_ sender: Any) {
+        if self.messageField.text?.isEmpty == false{
+            if contact == false{
+            addToContact()
+            }else{
+//                            list.append(self.messageField.text!)
+//                            self.mainTableView.reloadData()
+                            self.messageField.text = ""
+                
+            }
+
+        }
+    }
     
-    }
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+    
 }
 extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
+
+    func setUserData(){
+        if self.opponent.picUrl!.count > 5{
+            let url = URL(string: self.opponent.picUrl!)
+            self.picture.kf.setImage(with: url)
+        }
+        
+        self.userName.text = self.opponent.name!
+        
+    }
+    
+    func inits(){
+       
+        self.tabBarController?.tabBar.isHidden = true
+        self.tabBarController?.tabBar.isTranslucent = true
+      
+        hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "Please wait..."
+        hud.show(in: self.view)
+        
+        if  self.opponent.id > self.shared.user!.id{
+            self.conversationID = self.shared.user!.id+"|"+self.opponent.id
+            
+        }else{
+            self.conversationID = self.opponent.id+"|"+self.shared.user!.id
+            
+        }
+        
+        setUserData()
+        getDevice()
+        tableViewWork()
+        checkForContact()
+        loadConversation()
+        
+        
+    }
+    
+    func loadConversation(){
+        var refer = Database.database().reference()
+        self.hud.dismiss()
+            refer =  ref.child("Conversations").child("ChatData").child(self.conversationID)
+        
+        
+        self.removeLinkHandler = refer.observe(.childAdded, with: { (snapshot) -> Void in
+            if snapshot.exists(){
+                var message:SingleMessage = try! FirebaseDecoder().decode(SingleMessage.self, from:snapshot.value!)
+                if  let i = message.messageId{
+                    self.addToList(m:message)
+                }
+                self.hud.dismiss()
+                
+            }else{
+                self.hud.dismiss()
+            }
+        })
+
+    }
+    
+    func addToList(m:SingleMessage) {
+        
+        var flag:Bool = true
+        for  message in list {
+            var mess:SingleMessage = message as! SingleMessage
+            if (m.messageId.elementsEqual(mess.messageId)) {
+                flag = false
+            }
+        }
+        if (flag) {
+            self.list.append(m)
+            self.mainTableView.reloadData()
+        }
+        
+    }
+    func checkForContact(){
+        ref.child("Conversations").child(self.shared.user!.id).queryOrdered(byChild: "opponentId").queryEqual(toValue:opponent.id).observeSingleEvent(of: .value, with: { snapshot in
+            
+            if snapshot.exists() {
+                
+//                for item in snapshot.children{
+//                    var datashot:DataSnapshot = item as! DataSnapshot
+                    var request:Conversation = try! FirebaseDecoder().decode(Conversation.self, from: snapshot.value!)
+                    self.contact = true
+                    self.hud.dismiss()
+                    
+//                }
+            }else{
+                self.contact = false
+                self.hud.dismiss()
+            }
+            
+        })
+    }
+    
+    func addToContact(){
+        self.hud.show(in: self.view)
+        
+        var map1:[String:Any] = [:]
+        map1["opponentId"] = self.shared.user!.id!
+        
+        var map2:[String:Any] = [:]
+        map2["opponentId"] = self.opponent.id!
+        
+        
+        ref.child("Conversations").child(self.shared.user!.id).childByAutoId().setValue(map2, withCompletionBlock: { (error, snapshot) in
+            if error != nil {
+                print("\(error!.localizedDescription)")
+            } else {
+                ref.child("Conversations").child(self.opponent.id).childByAutoId().setValue(map1, withCompletionBlock: { (error, snapshot) in
+                    if error != nil {
+                        print("\(error!.localizedDescription)")
+                      self.hud.dismiss()
+                    } else {
+                        self.contact = true
+                       
+                    }
+                })
+            }
+        })
+    }
+    
+    func sendMessage(){
+    
+   
+        var refer:DatabaseReference = Database.database().reference().child("AppData")
+        
+            refer = refer.child("ChatData").child(self.conversationID).child(self.shared.user!.id)
+        var push:String = refer.childByAutoId().key!
+        var map:[String:Any] = [:]
+        map["message"] = self.messageField.text!
+        map["timestamp"] = ServerValue.timestamp()
+        map["id"] = self.shared.user!.id
+        map["messageId"] = push
+        map["name"] = self.shared.user!.name
+        map["picUrl"] = self.shared.user!.picUrl
+        map["type"] = self.shared.user!.type!
+    
+
+        refer.child(push).setValue(map, withCompletionBlock: { (error, snapshot) in
+            if error != nil {
+                print("\(error!.localizedDescription)")
+            } else {
+                //                self.list.append(self.messageField.text!)
+                //                self.mainTableView.reloadData()
+                self.messageField.text = ""
+                
+            }
+        })
+
+    }
+    
+    
+    
+    
+    
+    
     func tableViewWork(){
         mainTableView.dataSource = self
         mainTableView.delegate = self
@@ -62,33 +226,32 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
         
         mainTableView.register(UINib(nibName: "ChatRight", bundle: nil), forCellReuseIdentifier: "ChatRight")
         mainTableView.register(UINib(nibName: "ChatLeft", bundle: nil), forCellReuseIdentifier: "ChatLeft")
-        
-        list.append("")
-        list.append("")
-        list.append("")
-        list.append("")
-        list.append("")
-
-    }
+}
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
         
         
-        let cell:UITableViewCell!
         
-        if indexPath.row % 2 == 0{
-        cell = tableView.dequeueReusableCell(withIdentifier: "ChatRight") as! ChatRight
-        cell.selectionStyle = UITableViewCell.SelectionStyle.none
-        cell.preservesSuperviewLayoutMargins = false
-        tableView.backgroundColor = UIColor.clear
+        if list[indexPath.row].id.elementsEqual(self.shared.user!.id){
+            let cell:ChatRight!
+            cell = tableView.dequeueReusableCell(withIdentifier: "ChatRight") as! ChatRight
+            cell.selectionStyle = UITableViewCell.SelectionStyle.none
+            cell.preservesSuperviewLayoutMargins = false
+            tableView.backgroundColor = UIColor.clear
+            cell.messagee.text = self.list[indexPath.row].message
+            cell.datee.text = formaterDate(date: self.list[indexPath.row].timestamp)+" | "+formaterTime(date: self.list[indexPath.row].timestamp)
+            return cell
         }else{
+            let cell:ChatLeft!
+            
             cell = tableView.dequeueReusableCell(withIdentifier: "ChatLeft") as! ChatLeft
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
             cell.preservesSuperviewLayoutMargins = false
             tableView.backgroundColor = UIColor.clear
-            
+            cell.messagee.text = self.list[indexPath.row].message
+            cell.datee.text = formaterDate(date: self.list[indexPath.row].timestamp)+" | "+formaterTime(date: self.list[indexPath.row].timestamp)
+            return cell
         }
-        return cell
     }
     
     

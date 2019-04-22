@@ -13,7 +13,7 @@ import CodableFirebase
 import Kingfisher
 
 
-class HomeScreenViewController: UIViewController , UITableViewDelegate,UITableViewDataSource ,HomeScreenResponder  {
+class HomeScreenViewController: UIViewController  {
    
    
     
@@ -23,7 +23,7 @@ class HomeScreenViewController: UIViewController , UITableViewDelegate,UITableVi
     var story:UIStoryboard!
     var hud:JGProgressHUD!
     var itemHeight:CGFloat = 100
-    var list:Array<String> = Array<String>()
+    var list:Array<User> = Array<User>()
     
     
     
@@ -32,6 +32,7 @@ class HomeScreenViewController: UIViewController , UITableViewDelegate,UITableVi
         super.viewDidLoad()
         initlizers()
         getDevice()
+        getDonors()
     }
     
   
@@ -41,45 +42,31 @@ class HomeScreenViewController: UIViewController , UITableViewDelegate,UITableVi
             backImg.image = shared.template
         }
         
-//        let button =  UIButton(type: .custom)
-//        button.setImage(UIImage(named: "upgrade_plan"), for:.normal)
-//        button.frame = CGRect(x:0, y:0, width:32, height:32)
-//        let barButton = UIBarButtonItem(customView: button)
-//        self.navigationItem.leftBarButtonItem = barButton
-//        
+      
     }
-    
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
-        let cell = tableView.dequeueReusableCell(withIdentifier: "DonorRequests") as! DonorRequests
-        cell.selectionStyle = UITableViewCell.SelectionStyle.none
-        cell.preservesSuperviewLayoutMargins = false
-        tableView.backgroundColor = UIColor.clear
-        cell.responder = self
-        cell.position = indexPath.row
-        return cell
-    }
-    
-    
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
-        return list.count
-    }
-   
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return itemHeight
-    }
+
     
     override func viewWillAppear(_ animated: Bool) {
 
   //      self.title = "Welcome!"
         self.tabBarController?.tabBar.isHidden = false
         self.tabBarController?.tabBar.layer.zPosition = 0
-        
+        if let u = shared.user{
+            if self.shared.user!.type == 1 || self.shared.user!.type == 3 {
+                self.list.removeAll()
+                self.mainTableView.reloadData()
+                getDonors()
+            }else{
+               self.list.removeAll()
+                self.mainTableView.reloadData()
+            }
+        }
     }
     
     func chatClicked(pos: Int) {
         var secondStoryBoard = UIStoryboard(name: "Main", bundle: nil)
         var vc = secondStoryBoard.instantiateViewController(withIdentifier: "ChatViewController") as! ChatViewController
+        vc.opponent = self.list[pos]
         self.navigationController?.pushViewController(vc, animated: true)
 
     }
@@ -88,22 +75,7 @@ class HomeScreenViewController: UIViewController , UITableViewDelegate,UITableVi
         
     }
     
-    
-//    @IBAction func goToSettings(_ sender: Any) {
-//        try! Auth.auth().signOut()
-//        shared.user = nil
-//        shared.template = nil
-//
-//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//        let destinationViewController = storyboard.instantiateViewController(withIdentifier: "loginNavigation") as! UINavigationController
-//        //            if let navigationController = self.window?.rootViewController as? UINavigationController{
-//        //                navigationController.pushViewController(destinationViewController, animated: false)
-//        self.view.window?.rootViewController = destinationViewController
-//        self.view.window?.makeKeyAndVisible()
-//
-//
-//    }
-    
+   
     
     
     
@@ -115,7 +87,67 @@ class HomeScreenViewController: UIViewController , UITableViewDelegate,UITableVi
 }
 
 
-extension HomeScreenViewController{
+extension HomeScreenViewController :  UITableViewDelegate,UITableViewDataSource ,HomeScreenResponder {
+    
+    
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
+        let cell = tableView.dequeueReusableCell(withIdentifier: "DonorRequests") as! DonorRequests
+        cell.selectionStyle = UITableViewCell.SelectionStyle.none
+        cell.preservesSuperviewLayoutMargins = false
+        tableView.backgroundColor = UIColor.clear
+        
+        cell.userName.text = self.list[indexPath.row].name
+        cell.group.text = "Blood Group : "+self.list[indexPath.row].bloodGroup
+        
+        if self.list[indexPath.row].picUrl!.count > 5{
+            let url = URL(string: self.list[indexPath.row].picUrl!)
+            cell.picture.kf.setImage(with: url)
+        }
+        
+        cell.responder = self
+        cell.position = indexPath.row
+        return cell
+    }
+    
+    
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
+        return list.count
+    }
+    
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return itemHeight
+    }
+    
+    func getDonors(){
+        ref.child("Users").queryOrdered(byChild: "profileCompleted").queryEqual(toValue:true).observe(.value) { snapshot in
+            
+            if snapshot.exists(){
+//                toast(controller: self, message: "No Data", seconds: 1.5)
+                            if snapshot.exists() {
+                                for item in snapshot.children{
+                                    var datashot:DataSnapshot = item as! DataSnapshot
+                                     var user = try! FirebaseDecoder().decode(User.self, from: datashot.value!)
+                                    if user.id != self.shared.user!.id{
+                                        if user.type == 1 || user.type == 3{
+                                            self.list.append(user)
+                                            self.mainTableView.reloadData()
+                                        }
+                                    }
+                                }
+                                self.hud.dismiss()
+                
+                            }else{
+                                self.hud.dismiss()
+                
+                            }
+                
+                
+            }else{
+            }
+            
+        }
+  }
     
     
     func initlizers(){
@@ -135,11 +167,7 @@ extension HomeScreenViewController{
         
         mainTableView.register(UINib(nibName: "DonorRequests", bundle: nil), forCellReuseIdentifier: "DonorRequests")
         
-        list.append("")
-        list.append("")
-        list.append("")
-        list.append("")
-        list.append("")
+     
         
     self.getUserData()
     }

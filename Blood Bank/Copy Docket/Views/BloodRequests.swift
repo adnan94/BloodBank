@@ -10,6 +10,9 @@ import UIKit
 
 class BloodRequests: UITableViewCell {
 
+    @IBOutlet weak var bloodGroup: UILabel!
+    @IBOutlet weak var usernamee: UILabel!
+    @IBOutlet weak var picture: UIImageView!
     var responder:HomeScreenResponder!
     var position:Int!
     override func awakeFromNib() {

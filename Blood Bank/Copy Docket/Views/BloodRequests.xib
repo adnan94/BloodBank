@@ -75,6 +75,11 @@
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="NYE-7c-h6f"/>
+            <connections>
+                <outlet property="bloodGroup" destination="gOl-vH-XRX" id="jxa-WK-ccL"/>
+                <outlet property="picture" destination="7Qt-Ae-C3f" id="pw1-nh-RSt"/>
+                <outlet property="usernamee" destination="Pnq-wi-kZP" id="bc4-cr-cPU"/>
+            </connections>
             <point key="canvasLocation" x="94" y="207"/>
         </tableViewCell>
     </objects>

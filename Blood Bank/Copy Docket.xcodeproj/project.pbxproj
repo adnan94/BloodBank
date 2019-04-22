@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		042AF5A0226CDF930087FF70 /* SingleMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042AF59F226CDF930087FF70 /* SingleMessage.swift */; };
+		042AF5A2226CDFA10087FF70 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042AF5A1226CDFA10087FF70 /* Conversation.swift */; };
 		0432DCF32227D59300A38B90 /* HomeScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0432DCF22227D59300A38B90 /* HomeScreenViewController.swift */; };
 		0432DCF52227D7B600A38B90 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0432DCF42227D7B600A38B90 /* User.swift */; };
+		045FCA9C226BD1C1004420D1 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045FCA9B226BD1C1004420D1 /* Request.swift */; };
 		048AEBF2225C5ACE00823CDB /* MoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048AEBF1225C5ACE00823CDB /* MoreViewController.swift */; };
 		0499779922620657003647A7 /* DonorRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0499779722620657003647A7 /* DonorRequests.swift */; };
 		0499779A22620657003647A7 /* DonorRequests.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0499779822620657003647A7 /* DonorRequests.xib */; };
@@ -65,8 +68,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		042AF59F226CDF930087FF70 /* SingleMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleMessage.swift; sourceTree = "<group>"; };
+		042AF5A1226CDFA10087FF70 /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		0432DCF22227D59300A38B90 /* HomeScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenViewController.swift; sourceTree = "<group>"; };
 		0432DCF42227D7B600A38B90 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		045FCA9B226BD1C1004420D1 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		048AEBF1225C5ACE00823CDB /* MoreViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreViewController.swift; sourceTree = "<group>"; };
 		0499779722620657003647A7 /* DonorRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DonorRequests.swift; sourceTree = "<group>"; };
 		0499779822620657003647A7 /* DonorRequests.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DonorRequests.xib; sourceTree = "<group>"; };
@@ -149,6 +155,9 @@
 			isa = PBXGroup;
 			children = (
 				0432DCF42227D7B600A38B90 /* User.swift */,
+				045FCA9B226BD1C1004420D1 /* Request.swift */,
+				042AF59F226CDF930087FF70 /* SingleMessage.swift */,
+				042AF5A1226CDFA10087FF70 /* Conversation.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -537,6 +546,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0499779D22620681003647A7 /* BloodRequests.swift in Sources */,
+				045FCA9C226BD1C1004420D1 /* Request.swift in Sources */,
 				04B4CB992226B1B4004BB782 /* ViewController.swift in Sources */,
 				04C62B60222E6F8E00FF7460 /* CustomButton.swift in Sources */,
 				04C62B5E222E6EE800FF7460 /* CustomLabel.swift in Sources */,
@@ -547,6 +557,8 @@
 				049977A5226206B8003647A7 /* ChatRight.swift in Sources */,
 				048AEBF2225C5ACE00823CDB /* MoreViewController.swift in Sources */,
 				049977B2226335F2003647A7 /* ProfileViewController.swift in Sources */,
+				042AF5A2226CDFA10087FF70 /* Conversation.swift in Sources */,
+				042AF5A0226CDF930087FF70 /* SingleMessage.swift in Sources */,
 				0432DCF52227D7B600A38B90 /* User.swift in Sources */,
 				04F13D2D222C17D600112390 /* CustomRadiusView.swift in Sources */,
 				04B4CBC82226C6EA004BB782 /* SignUpViewController.swift in Sources */,

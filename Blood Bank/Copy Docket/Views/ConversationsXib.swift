@@ -10,6 +10,8 @@ import UIKit
 
 class ConversationsXib: UITableViewCell {
 
+    @IBOutlet weak var picture: UIImageView!
+    @IBOutlet weak var userNAme: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

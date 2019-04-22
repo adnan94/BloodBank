@@ -74,16 +74,6 @@ class ViewController: UIViewController {
     }
     
     
-    func goRegister(){
-        var secondStoryBoard = UIStoryboard(name: "Main", bundle: nil)
-        var theInitialViewController: UIViewController? = secondStoryBoard.instantiateInitialViewController()
-        var vc = secondStoryBoard.instantiateViewController(withIdentifier: "SignUpViewController") as! SignUpViewController
-        self.navigationController?.pushViewController(vc, animated: true)
-        //    self.dismiss(animated: true, completion: nil)
-//        toast(controller: self, message:"Login Successfully", seconds: 1.5)
-        
-    }
-
     
     
     @IBAction func forgetPassword(_ sender: Any) {
@@ -124,69 +114,12 @@ class ViewController: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
-//    @objc func handleCustomFBLogin() {
-//        FBSDKLoginManager().logIn(withReadPermissions: ["email"], from: self) { (result, err) in
-//            if err != nil {
-//                print("Custom FB Login failed:", err)
-//                return
-//            }
-//            self.showEmail()
-//        }
-//    }
-    
-    ///Google Stuff
-//    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-//        if error != nil{
-//            print(error.localizedDescription)
-//            return
-//        }
-//        guard let authentication = user.authentication else { return }
-//        let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
-//                                                       accessToken: authentication.accessToken)
-//        Auth.auth().signInAndRetrieveData(with: credential) { (authResult, error) in
-//            if let error = error {
-//                print(error.localizedDescription)
-//                return
-//            }
-//
-//            if let authResult = authResult{
-//                self.checkForUSerExists(email: authResult.user.email!, id: authResult.user.uid, name: authResult.user.displayName!)
-//            }
-//        }
-//    }
-//
-//
-    
-//    func sign(_ signIn: GIDSignIn!,
-//              present viewController: UIViewController!) {
-//        self.present(viewController, animated: true, completion: nil)
-//    }
-//
-//
-//    func showEmail(){
-//
-//        FBSDKGraphRequest(graphPath: "/me", parameters: ["fields": "id, name, email"]).start { (connection, result, err) in
-//
-//            if err != nil {
-//                print("Failed to start graph request:", err)
-//                return
-//            }
-//
-//            let credential = FacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
-//            Auth.auth().signInAndRetrieveData(with: credential) { (authResult, error) in
-//                if let error = error {
-//                    toast(controller: self, message: error.localizedDescription, seconds: 2.0)
-//                    return
-//                }
-//
-//                if let authResult = authResult{
-//                    self.checkForUSerExists(email: authResult.user.email!, id: authResult.user.uid, name: authResult.user.displayName!)
-//                }
-//            }
-//        }
-//    }
-//
-    
+
+}
+
+
+
+extension ViewController{
     func checkForUSerExists(email:String, id:String , name:String){
         
         ref.child("Users").child(id).observe(.value) { snapshot in
@@ -200,52 +133,23 @@ class ViewController: UIViewController {
         }
     }
     
-    
-    
-    
-   
-    
-    //    func sign(_ signIn: GIDSignIn!,
-    //              present viewController: UIViewController!) {
-    //        self.present(viewController, animated: true, completion: nil)
-    //    }
-//
-//    override func viewWillAppear(_ animated: Bool) {
-//        self.navigationItem.setHidesBackButton(true, animated:true);
-//
-//    }
-//    @IBAction func facebook(_ sender: Any) {
-//        handleCustomFBLogin()
-//    }
-//    @IBAction func google(_ sender: Any) {
-//        handleGoogleLogin()
-//    }
-    
-    
-   
-    
-}
+    func goRegister(){
+        var secondStoryBoard = UIStoryboard(name: "Main", bundle: nil)
+        var theInitialViewController: UIViewController? = secondStoryBoard.instantiateInitialViewController()
+        var vc = secondStoryBoard.instantiateViewController(withIdentifier: "SignUpViewController") as! SignUpViewController
+        self.navigationController?.pushViewController(vc, animated: true)
+        //    self.dismiss(animated: true, completion: nil)
+        //        toast(controller: self, message:"Login Successfully", seconds: 1.5)
+        
+    }
 
-
-
-extension ViewController{
     
     func initilizations(){
-//        self.navigationItem.setHidesBackButton(true, animated:true);
-//        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "back.png")
-//        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "back.png")
-//        self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        
-        //Google Stuff
-//        GIDSignIn.sharedInstance()?.uiDelegate = self
-        
+
     }
     
     func handleGoogleLogin(){
-//        GIDSignIn.sharedInstance().delegate = self
-//        GIDSignIn.sharedInstance().uiDelegate = self
-//        GIDSignIn.sharedInstance().signIn()
-    }
+}
     
     func gotoHome(){
         if let user:String = Auth.auth().currentUser?.uid{
@@ -253,8 +157,8 @@ extension ViewController{
                 
                 if snapshot.exists(){
                     let dataShot:DataSnapshot = snapshot as! DataSnapshot
-                    let data:[String:Any] = dataShot.value as! [String: Any]
-                    let user = User(shot: data)
+                    let user =  try! FirebaseDecoder().decode(User.self, from: dataShot.value!)
+
                     if user.active! == 0{
                         toast(controller: self, message:"Account Deactivited", seconds: 1.5)
                         try! Auth.auth().signOut()
@@ -291,8 +195,8 @@ extension ViewController{
                             for item in snapshot.children{
                                 
                                 let dataShot:DataSnapshot = item as! DataSnapshot
-                                let data:[String:Any] = dataShot.value as! [String: Any]
-                                let user = User(shot: data)
+//                                let data:[String:Any] = dataShot.value as! [String: Any]
+                                let user = try! FirebaseDecoder().decode(User.self, from: dataShot.value!);
                                 if user.active! == 0{
                                     toast(controller: self, message:"Account Deactivited", seconds: 1.5)
                                     try! Auth.auth().signOut()
@@ -334,19 +238,11 @@ extension ViewController{
     }
     
     func go(){
-//        var secondStoryBoard = UIStoryboard(name: "Main", bundle: nil)
-//        var theInitialViewController: UIViewController? = secondStoryBoard.instantiateInitialViewController()
-//        var vc = secondStoryBoard.instantiateViewController(withIdentifier: "HomeScreenViewController") as! HomeScreenViewController
-//        self.navigationController?.pushViewController(vc, animated: true)
-        
+
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let destinationViewController = storyboard.instantiateViewController(withIdentifier: "dashboard") as! UITabBarController
-        //            if let navigationController = self.window?.rootViewController as? UINavigationController{
-        //                navigationController.pushViewController(destinationViewController, animated: false)
         self.view.window?.rootViewController = destinationViewController
         self.view.window?.makeKeyAndVisible()
-        
-        //    self.dismiss(animated: true, completion: nil)
         self.hud.dismiss()
         toast(controller: self, message:"Login Successfully", seconds: 1.5)
         
@@ -359,6 +255,17 @@ extension ViewController{
         dict["type"] =  user.type
         dict["date"] = user.date
         dict["id"] = user.id
+        dict["address"] = "N/A"
+        dict["gender"] = "Male"
+        dict["address"] = "N/A"
+        dict["gender"] = "Male"
+        dict["bloodGroup"] = "N/A"
+        
+        
+        dict["dateOfBirth"] = 0
+        dict["lastDonated"] = 0
+        dict["profileCompleted"] = false
+        
         if let active = user.active{
             dict["active"] = active
         }
@@ -394,7 +301,15 @@ extension ViewController{
         user["date"] = ServerValue.timestamp()
         user["id"] = push
         user["deviceID"] = UIDevice.current.identifierForVendor!.uuidString
+        user["address"] = "N/A"
+        user["gender"] = "Male"
+        user["bloodGroup"] = "N/A"
         
+        
+        user["dateOfBirth"] = 0
+        user["lastDonated"] = 0
+        user["profileCompleted"] = false
+       
         ref.child("Users").child(push).setValue(user, withCompletionBlock: { (error, snapshot) in
             if error != nil {
                 print("\(error!.localizedDescription)")
