@@ -107,10 +107,11 @@ extension ConversationsViewController :  UITableViewDelegate,UITableViewDataSour
         }
     }
     func getUser(conversation:Conversation){
-        ref.child("Users").child(self.shared.user!.id).observe(.value) { snapshot in
+        ref.child("Users").child(conversation.opponentId).observe(.value) { snapshot in
             
             if snapshot.exists(){
                 if snapshot.exists() {
+                    
                     var datashot:DataSnapshot = snapshot as! DataSnapshot
                     var user = try! FirebaseDecoder().decode(User.self, from: datashot.value!)
                     conversation.user = user

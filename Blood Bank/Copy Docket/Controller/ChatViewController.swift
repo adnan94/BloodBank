@@ -28,7 +28,7 @@ class ChatViewController: UIViewController {
     var shared:AppDelegate = UIApplication.shared.delegate as! AppDelegate
     var conversationID:String!
     var removeLinkHandler: DatabaseHandle!
-    
+    var flag = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,6 +38,9 @@ class ChatViewController: UIViewController {
     
     
     override func viewWillDisappear(_ animated: Bool) {
+        if let r = self.removeLinkHandler {
+         ref.removeObserver(withHandle: self.removeLinkHandler)
+        }
         self.tabBarController?.tabBar.isHidden = false
         self.tabBarController?.tabBar.isTranslucent = false
     }
@@ -51,12 +54,13 @@ class ChatViewController: UIViewController {
             if contact == false{
             addToContact()
             }else{
-//                            list.append(self.messageField.text!)
-//                            self.mainTableView.reloadData()
-                            self.messageField.text = ""
+//                            self.messageField.text = ""
+                sendMessage()
                 
             }
 
+        }else{
+            toast(controller: self, message: "Enter message", seconds: 1.0)
         }
     }
     
@@ -97,20 +101,22 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
         checkForContact()
         loadConversation()
         
-        
     }
     
     func loadConversation(){
         var refer = Database.database().reference()
         self.hud.dismiss()
-            refer =  ref.child("Conversations").child("ChatData").child(self.conversationID)
+            refer =  refer.child("AppData").child("ChatData").child(self.conversationID)
         
         
-        self.removeLinkHandler = refer.observe(.childAdded, with: { (snapshot) -> Void in
+        self.removeLinkHandler = refer.observe(.childChanged, with: { (snapshot) -> Void in
             if snapshot.exists(){
-                var message:SingleMessage = try! FirebaseDecoder().decode(SingleMessage.self, from:snapshot.value!)
+                for item in snapshot.children{
+                    var datashot:DataSnapshot = item as! DataSnapshot
+                var message:SingleMessage = try! FirebaseDecoder().decode(SingleMessage.self, from:datashot.value!)
                 if  let i = message.messageId{
                     self.addToList(m:message)
+                }
                 }
                 self.hud.dismiss()
                 
@@ -120,6 +126,44 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
         })
 
     }
+    func loadInitially(){
+        var refer = Database.database().reference()
+        self.hud.dismiss()
+        refer =  refer.child("AppData").child("ChatData").child(self.conversationID)
+         refer.observeSingleEvent(of: .value, with: { snapshot in
+               if snapshot.exists(){
+                            for item in snapshot.children{
+                                var datashot:DataSnapshot = item as! DataSnapshot
+                             
+                                
+                                
+                                for item1 in datashot.children{
+                                    var datashot1:DataSnapshot = item1 as! DataSnapshot
+                                    
+                                var message:SingleMessage = try! FirebaseDecoder().decode(SingleMessage.self, from:datashot1.value!)
+                                if  let i = message.messageId{
+                                    self.addToList(m:message)
+                                }
+                                    
+                                    
+                                    
+                                    
+                            }
+                }
+                self.flag = true
+                            self.hud.dismiss()
+               }else{
+                            self.hud.dismiss()
+            }
+            
+        })
+     
+        
+        
+    }
+    
+    
+    
     
     func addToList(m:SingleMessage) {
         
@@ -133,6 +177,8 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
         if (flag) {
             self.list.append(m)
             self.mainTableView.reloadData()
+            self.mainTableView.scrollToRow(at: IndexPath(item: self.list.count-1, section: 0), at: .bottom,
+                                           animated: true)
         }
         
     }
@@ -140,14 +186,11 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
         ref.child("Conversations").child(self.shared.user!.id).queryOrdered(byChild: "opponentId").queryEqual(toValue:opponent.id).observeSingleEvent(of: .value, with: { snapshot in
             
             if snapshot.exists() {
-                
-//                for item in snapshot.children{
-//                    var datashot:DataSnapshot = item as! DataSnapshot
+
                     var request:Conversation = try! FirebaseDecoder().decode(Conversation.self, from: snapshot.value!)
                     self.contact = true
                     self.hud.dismiss()
-                    
-//                }
+       
             }else{
                 self.contact = false
                 self.hud.dismiss()
@@ -176,7 +219,8 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
                       self.hud.dismiss()
                     } else {
                         self.contact = true
-                       
+                        self.hud.dismiss()
+                        self.sendMessage()
                     }
                 })
             }
@@ -185,7 +229,9 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
     
     func sendMessage(){
     
-   
+ //       if self.flag{
+   //self.loadConversation()
+     //   }
         var refer:DatabaseReference = Database.database().reference().child("AppData")
         
             refer = refer.child("ChatData").child(self.conversationID).child(self.shared.user!.id)
@@ -207,7 +253,7 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
                 //                self.list.append(self.messageField.text!)
                 //                self.mainTableView.reloadData()
                 self.messageField.text = ""
-                
+                self.flag = false
             }
         })
 
@@ -229,10 +275,9 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
 }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
+       
         
-        
-        
-        if list[indexPath.row].id.elementsEqual(self.shared.user!.id){
+//        if list[indexPath.row].id.elementsEqual(self.shared.user!.id){
             let cell:ChatRight!
             cell = tableView.dequeueReusableCell(withIdentifier: "ChatRight") as! ChatRight
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
@@ -241,17 +286,17 @@ extension ChatViewController : UITableViewDelegate,UITableViewDataSource{
             cell.messagee.text = self.list[indexPath.row].message
             cell.datee.text = formaterDate(date: self.list[indexPath.row].timestamp)+" | "+formaterTime(date: self.list[indexPath.row].timestamp)
             return cell
-        }else{
-            let cell:ChatLeft!
-            
-            cell = tableView.dequeueReusableCell(withIdentifier: "ChatLeft") as! ChatLeft
-            cell.selectionStyle = UITableViewCell.SelectionStyle.none
-            cell.preservesSuperviewLayoutMargins = false
-            tableView.backgroundColor = UIColor.clear
-            cell.messagee.text = self.list[indexPath.row].message
-            cell.datee.text = formaterDate(date: self.list[indexPath.row].timestamp)+" | "+formaterTime(date: self.list[indexPath.row].timestamp)
-            return cell
-        }
+//        }else{
+//            let cell:ChatLeft!
+//
+//            cell = tableView.dequeueReusableCell(withIdentifier: "ChatLeft") as! ChatLeft
+//            cell.selectionStyle = UITableViewCell.SelectionStyle.none
+//            cell.preservesSuperviewLayoutMargins = false
+//            tableView.backgroundColor = UIColor.clear
+//            cell.messagee.text = self.list[indexPath.row].message
+//            cell.datee.text = formaterDate(date: self.list[indexPath.row].timestamp)+" | "+formaterTime(date: self.list[indexPath.row].timestamp)
+//            return cell
+//        }
     }
     
     

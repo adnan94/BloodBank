@@ -53,8 +53,7 @@ class HomeScreenViewController: UIViewController  {
         self.tabBarController?.tabBar.layer.zPosition = 0
         if let u = shared.user{
             if self.shared.user!.type == 1 || self.shared.user!.type == 3 {
-                self.list.removeAll()
-                self.mainTableView.reloadData()
+              
                 getDonors()
             }else{
                self.list.removeAll()
@@ -64,11 +63,15 @@ class HomeScreenViewController: UIViewController  {
     }
     
     func chatClicked(pos: Int) {
+    
+        if shared.user!.profileCompleted{
         var secondStoryBoard = UIStoryboard(name: "Main", bundle: nil)
         var vc = secondStoryBoard.instantiateViewController(withIdentifier: "ChatViewController") as! ChatViewController
         vc.opponent = self.list[pos]
         self.navigationController?.pushViewController(vc, animated: true)
-
+        }else{
+            toast(controller: self, message: "Profile not completed", seconds: 1.0)
+        }
     }
     
     func callClicked(pos: Int) {
@@ -125,11 +128,13 @@ extension HomeScreenViewController :  UITableViewDelegate,UITableViewDataSource 
             if snapshot.exists(){
 //                toast(controller: self, message: "No Data", seconds: 1.5)
                             if snapshot.exists() {
+                                self.list.removeAll()
+                                self.mainTableView.reloadData()
                                 for item in snapshot.children{
                                     var datashot:DataSnapshot = item as! DataSnapshot
                                      var user = try! FirebaseDecoder().decode(User.self, from: datashot.value!)
                                     if user.id != self.shared.user!.id{
-                                        if user.type == 1 || user.type == 3{
+                                        if user.bloodGroup.elementsEqual("N/A") == false{
                                             self.list.append(user)
                                             self.mainTableView.reloadData()
                                         }

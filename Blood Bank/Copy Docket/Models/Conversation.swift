@@ -10,6 +10,6 @@ import Foundation
 import CodableFirebase
 
 class Conversation:Codable{
-    var opponent:String!
+    var opponentId:String!
     var user:User!
 }
